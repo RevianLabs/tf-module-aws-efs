@@ -2,7 +2,7 @@ resource "aws_security_group" "default-efs-sg" {
   count = var.security_ids == [] ? 1 : 0
   description = "Controls access to the EFS. Terraform controlled"
   vpc_id      = var.vpc_id
-  name        = var.security_group_name != "" ? var.security_group_name : "${var.token_name}-${var.env}-sg"
+  name        = var.security_group_name != "" ? var.security_group_name : "${var.token_name}-sg"
 
   ingress {
     description     = "NFS from VPC"
@@ -13,16 +13,16 @@ resource "aws_security_group" "default-efs-sg" {
   }
   egress = null
 
-  tags        = merge(local.tags, var.extra_tags)
+  tags        = var.tags
 }
 
 resource "aws_efs_file_system" "efs" {
-   creation_token   = var.token_name != "" ? var.token_name : "efs-token-${var.env}"
-   performance_mode = var.performance_mode
-   throughput_mode  = var.throughput_mode
-   encrypted        = var.enable_encryption
-   tags             = merge(local.tags, var.extra_tags)
- }
+  creation_token   = var.token_name != "" ? var.token_name : "efs-token"
+  performance_mode = var.performance_mode
+  throughput_mode  = var.throughput_mode
+  encrypted        = var.enable_encryption
+  tags             = var.tags
+}
  
 resource "aws_efs_mount_target" "efs-mount" {
   count           = length(var.subnet_ids)
